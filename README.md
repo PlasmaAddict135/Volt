@@ -11,3 +11,23 @@ fn fibonacci( num ) {
    }
 }
 ```
+
+Here's an example of a guess game in Volt:
+```
+incl {
+  random as rd
+}
+
+compGuess = rd.gen(1, 100)
+
+loop {
+  userGuess = in('Your guess : ')
+  if userGuess > compGuess => out('Guess Lower!')
+  if userGuess < compGuess => out('Higher!')
+  if userGuess == compGuess {
+    out('You guessed it!')
+    break
+  }
+}
+
+```
