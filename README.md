@@ -3,31 +3,28 @@ A language built with sole focus on readability, functionality and speed of deve
 
 Here's an example of the fibonacci series generation algorithm written in Volt:
 ```
-fn fibonacci( num ) {
-  if num <= 1 {
+fn fibonacci( num ) do
+  if num <= 1 do
     return num
-   } else {
-    return fibonacci( num - 1 ) + fibonacci( num - 2 )
-   }
-}
+    
+   else do
+      return fibonacci( num - 1 ) + fibonacci( num - 2 )
 ```
 
 Here's an example of a guess game in Volt:
 ```
-incl {
+incl (
   random as rd
-}
+)
 
 compGuess = rd.gen(1, 100)
 
-loop {
+loop do
   userGuess = in('Your guess : ')
   if userGuess > compGuess => out('Guess Lower!')
   if userGuess < compGuess => out('Higher!')
-  if userGuess == compGuess {
+  if userGuess == compGuess do
     out('You guessed it!')
     break
-  }
-}
-
 ```
+
