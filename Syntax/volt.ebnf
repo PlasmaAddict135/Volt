@@ -1,0 +1,53 @@
+program := <expr>+;
+
+expr
+    :=   <primary>
+     |   <function-call>
+     |   <expr> <binary-operator> <expr> 
+    ;
+
+function := 'fn' <identifier> '(' EMPTY | <param>* ')' <block>;
+param := ???;
+
+primary :=
+    :=   
+     |   <assignment>
+     |   <unary-operator> <expr>
+     |   <literal>
+     |   '(' <expr> ')'
+     |   <block>
+     |   <kw-expr>
+    ;
+
+kw-expr 
+    :=
+     |  <if-stmt>
+     |  <function>
+     |  <while-expr>
+     |  <for-expr>
+     |  <match-expr>
+     |  <import-stmt>
+    ;
+
+literal := 'true' | 'false' | 'null' | <string> | <integer> | <identifier>;
+integer := [0-9]+;
+string := `'` ('\\' [ntf{QUOTE}{DOUBLEQUOTE}] | [^{QUOTE}])* `'` | `"` ('\\' [ntf{QUOTE}{DOUBLEQUOTE}] | [^{DOUBLEQUOTE}])* `"`;
+
+assignment := <identifier> <assignment-operator> <expr>;
+
+if-stmt := 'if' <expr> <block> ('elif-stmt' <block>)* ('else' <block>)?;
+import-stmt := 'incl' '{' <identifier>* '}';
+while-expr := 'while' <expr> <block>;
+for-expr := 'for' <expr> <block>;
+match-stmt := 'match' <expr> '{' (match-case ',')* match-case? '}';
+match-case := <ident> '==>' <expr>;
+block := '{' <expr>* '}';
+
+assignment-operator := '=' | ([-+*/%^&|] | '<<' | '>>' | '**')'=';
+unary-operator := [-+~!];
+binary-operator
+     := [-+*/%] | '**'      # math
+      | [&|^] | '>>' | '<<' # bitise
+      | [<>!]=? | '=='      # logical
+      ;
+identifier : [a-zA-Z_] [a-zA-Z0-9_]*

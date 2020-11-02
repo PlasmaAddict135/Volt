@@ -1,0 +1,87 @@
+1. Easy packaging when creating packages
+2. Pattern matching in arguments
+```
+let x = Some(5);
+    let y = 10;
+
+    match x {
+        Some(50) => println!("Got 50"),
+        Some(y) => println!("Matched, y = {:?}", y),
+        _ => println!("Default case, x = {:?}", x),
+    }
+```
+3. Both OOP and Functional Programming
+4. Shorter Aliases:
+input -> in
+output / print -> out
+Accessing properties / Dunder Methods:
+```
+# want to access the size of the text
+text = in('Enter some text : ')
+size = text<size>
+```
+5. Cleaner import statements
+```
+incl {
+    package1
+    package2
+}
+```
+6. Function decleration
+```
+fn x(){}
+```
+7. Private Keyword
+8. Constant Keyword
+8. camelCase
+9. Simple Objects
+```
+user = {
+    name = 'TheBossProSniper'
+    age = '14'
+    fn myfunc() {
+        out('Well, this works!')
+    }
+}
+
+user.myfunc()
+```
+10. Anonymous functions 
+
+EBNF Style:
+
+Variable Assignment
+-------------------------------------------------------
+x = 20
+
+assignment := <identifier> = <expression>
+
+assignment => name of operation being done
+:= -> the following is the syntax
+<identifier> -> name for the variable
+`=` -> operator (assignment token)
+<expression> -> value of the variable
+
+---------------------------------------------------------
+
+
+Function Decleration
+----------------------------------------------------------
+fn myfunc() {out('Hello!')}
+
+function := 'fn' <identifier> '(' <params> ')' <block>
+
+function => name of operation being done
+:= -> the following is the syntax
+'fn' -> keyword 'fn' to start decleration
+<identifier> -> name for the function
+<params> -> parameters passed in
+
+
+Control Flow
+----------------------------------------------------------
+if name == 'foo' {} elif {} else {}
+
+if-stmt := ('if' <expr> <block>) ('elif-stmt' <block>)?* ('else' <block>)?
+
+----------------------------------------------------------
