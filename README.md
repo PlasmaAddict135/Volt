@@ -13,9 +13,9 @@ fn fibonacci( num ) do
 
 Here's an example of a guess game in Volt:
 ```
-incl (
+incl {
   random as rd
-)
+}
 
 compGuess = rd.gen(1, 100)
 
