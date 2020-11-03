@@ -21,10 +21,10 @@ compGuess = rd.gen(1, 100)
 
 loop do
   userGuess = in('Your guess : ')
-  if userGuess > compGuess => out('Guess Lower!')
-  if userGuess < compGuess => out('Higher!')
+  if userGuess > compGuess => put('Guess Lower!')
+  if userGuess < compGuess => put('Higher!')
   if userGuess == compGuess do
-    out('You guessed it!')
+    put('You guessed it!')
     break
 ```
 
