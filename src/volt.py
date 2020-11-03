@@ -1,98 +1,124 @@
-################################################
-#                 CONSTANTS                    #
-################################################
+######################################
+# VOLT
+######################################
 
-DIGITS = '0123456789'
+from enum import Enum
+from collections import defaultdict
+from os import error
+from typing import Dict, List
+import sys
 
-################################################
-#                   TOKENS                     #
-################################################
-
-TT_INT = 'INT'
-TT_FLOAT = 'FLOAT'
-TT_PLUS = 'PLUS'
-TT_MINUS = 'MINUS'
-TT_MULTIPLY = 'MULTIPLY'
-TT_DIVIDE = 'DIVIDE'
-TT_LPAREN = '('
-TT_RPAREN = ')'
-
+TT = Enum("TT", "INT STR PLUS MINUS MUL DIV LPAREN RPAREN")
 
 class Token:
-    def __init__(self, type, value = None):
-        self.type = type
-        self.value = value
-    
-    def __repr__(self):
-        if self.value : return f'{self.type}:{self.value}'
-        return f'{self.type}'
-        
-
-################################################
-#                    LEXER                     #
-################################################
+    def __init__(self, line, column, kind: TT, data):
+        self.kind = kind 
+        self.data = data
+        self.line = line
+        self.column = column
 
 class Lexer:
-    def __init__(self, text : str):
-        self.text = text
-        self.position = -1
-        self.current_char = None
-        self.advance()
+    src = []
+    idx = 0
+    kws = defaultdict(lambda: TT.IDENT)
     
-    def advance(self):
-        self.position += 1
-        self.current_char = self.text[self.position] if self.position < len(self.text) else None
+    def __init__(self, src):
+        self.src = src 
+        self.kws['('] = TT.LPAREN 
+        self.kws[')'] = TT.RPAREN
+        self.kws['+'] = TT.PLUS
+        self.kws['-'] = TT.MINUS
+        self.kws['*'] = TT.MUL
+        self.kws['/'] = TT.DIV
 
-    def tokenize(self):
-        tokens = []
+        self.row = 1
+        self.column = 1
 
-        while self.current_char:
-            if self.current_char in ' \t':
-                self.advance()
+    def lex_num(self):
+        match = ""
+        while self.idx < len(self.src) and self.src[self.idx].isdigit():
+            match += self.src[self.idx]
+            self.eat()
+        return Token(self.row, self.column, TT.INT, int(match))
 
-            if self.current_char in DIGITS:
-                self.advance()
-                tokens.append(Token(TT_INT))
-            
-            if self.current_char == '+':
-                tokens.append(Token(TT_PLUS))
-                self.advance()
-            
-            if self.current_char == '-':
-                tokens.append(Token(TT_MINUS))
-                self.advance()
+    def current_char_is_valid_in_an_identifier(self):
+        current = self.src[self.idx]
+        return current.isidentifier()
 
-            if self.current_char == '*':
-                tokens.append(Token(TT_MULTIPLY))
-                self.advance()
-
-            if self.current_char == '/':
-                tokens.append(Token(TT_DIVIDE))
-                self.advance()
-
-            if self.current_char == '(':
-                tokens.append(Token(TT_LPAREN))
-                self.advance()
-
-            if self.current_char == ')':
-                tokens.append(Token(TT_RPAREN))
-                self.advance()
+    def lex_ident(self):
+        match = ""
+        while self.idx < len(self.src) and self.current_char_is_valid_in_an_identifier():
+            match += self.src[self.idx]
+            self.eat()
         
-        return tokens
+        kind = self.kws[match]
+        return Token(self.row, self.column, kind, match)
 
-    def create_number(self):
-        self.advance()
+    def consume_whitespace(self):
+        while self.idx < len(self.src) and self.src[self.idx].isspace():
+            self.eat()
 
+    def __iter__(self):
+        return self
 
-################################################
-#                     RUN                      #
-################################################
+    # RECOGNIZE NEXT TOKEN
+    def __next__(self):
+        if self.idx >= len(self.src):
+            raise StopIteration
+        self.consume_whitespace()
+        ch = self.src[self.idx]
+        if ch.isalpha():
+            return self.lex_ident()
+        elif ch.isdigit():
+            return self.lex_num()
+        elif ch == '"':
+            return self.lex_string_literal()
+        elif ch == "'":
+            return self.lex_single_quote_literal()
+        else:
+            kind = self.kws[ch]
+            self.eat()
+            if kind == TT.IDENT:
+                kind = TT.UNKNOWN
+            return Token(self.row, self.column, kind, ch)
 
-def run(text : str):
+    # FOR EVALUATING STRINGS
+    def lex_string_literal(self):
+        assert(self.src[self.idx] == '"')
+        self.eat()
+
+        literal = ""
+        while self.idx < len(self.src) and self.src[self.idx] != '"':
+            literal += self.src[self.idx]
+            self.eat()
+        
+        if self.idx >= len(self.src):
+            print("Missing end of string delimiter!")
+            return Token(self.row, self.column, TT.UNKNOWN, literal)
+        assert(self.src[self.idx] == '"')
+        self.eat()
+        return Token(self.row, self.column, TT.STRING, literal)
     
-    # Lexing
+    def lex_single_quote_literal(self):
+        assert(self.src[self.idx] == "'")
+        self.eat()
 
-    lexer = Lexer(text)
-    tokens = lexer.tokenize()
-    print(tokens)
+        literal = ""
+        while self.idx < len(self.src) and self.src[self.idx] != "'":
+            literal += self.src[self.idx]
+            self.eat()
+        
+        if self.idx >= len(self.src):
+            print("Missing end of string delimiter!")
+            return Token(self.row, self.column, TT.UNKNOWN, literal)
+        assert(self.src[self.idx] == "'")
+        self.eat()
+        return Token(self.row, self.column, TT.STRING, literal)
 
+    def eat(self):
+        if self.src[self.idx] == "\n":
+            self.row += 1
+            self.column = 1
+        else:
+            self.column += 1
+        self.idx += 1
